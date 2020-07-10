@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[2]:
+# In[41]:
 
 
 from pylab import *
@@ -12,7 +12,7 @@ from scipy import stats
 import seaborn as sns
 
 
-# In[3]:
+# In[42]:
 
 
 lats      = np.load('CESM_LME_lats.npy')
@@ -25,7 +25,7 @@ Z3850     = np.load('Z3_850_LME_1850-2005.npy')
 Z3850Mean = np.load('Z3_850_LME_ENSMEAN_850-1850.npy')
 
 
-# In[4]:
+# In[43]:
 
 
 # Save only U.S. 
@@ -55,7 +55,7 @@ print(latrange)
 print(lonrange)
 
 
-# In[12]:
+# In[44]:
 
 
 #====================================================================#
@@ -106,7 +106,7 @@ tenYrAvgBHIStahle = np.concatenate((tenYrAvgBHIStahle850[0], tenYrAvgBHIStahle[0
 print(tenYrAvgBHIStahle)
 
 
-# In[23]:
+# In[45]:
 
 
 #=============================================================================#
@@ -154,7 +154,7 @@ BHIOrtegren_std=(bhiortegren-bhiortegren.rolling(window=30).mean())/bhiortegren.
 BHIOrtegren_std = pd.Series.to_numpy(BHIOrtegren_std)
 
 
-# In[33]:
+# In[46]:
 
 
 #============================================================================#
@@ -163,8 +163,18 @@ BHIOrtegren_std = pd.Series.to_numpy(BHIOrtegren_std)
 # or monthly mean. 
 
 
-BHILi = np.amax(SubsetZ3850[ :, 0:9, 11:35], axis = (1,2))
-BHILimean = np.amax(SubsetZ3850Mean[ :, 0:9, 11:35], axis = (1,2))
+BHILi_subset = SubsetZ3850[ :, 0:9, 11:35]
+print(BHILi_subset.shape)
+BHILi = np.amax(BHILi_subset, axis = 1)
+print(BHILi.shape)
+BHILi = np.argmax(BHILi, axis = 1)
+print(BHILi.shape)
+print(BHILi)
+
+BHILimean_subset = SubsetZ3850Mean[ :, 0:9, 11:35]
+BHILimean = np.amax(BHILimean_subset, axis = 1)
+BHILimean = np.argmax(BHILimean, axis = 1)
+
 
 s1 = size(BHILi, axis = 0)
 m  = s1 - mod(s1, (12 * yrAvg))
@@ -186,16 +196,19 @@ y  = BHILimean.reshape((12 * yrAvg), int(newTerms))
 tenYrAvgBHILimean = transpose(sum(y, axis = 0) / (12 * yrAvg))
 tenYrAvgBHILimean = tenYrAvgBHILimean.reshape(1, int(1000 / yrAvg))
 
-# tenYrAvgBHILi = np.concatenate((tenYrAvgBHILimean[0], tenYrAvgBHILi[0]))
+tenYrAvgBHILi = np.concatenate((tenYrAvgBHILimean[0], tenYrAvgBHILi[0]))
+
+print(tenYrAvgBHILi)
 
 
-# In[34]:
+# In[47]:
 
 
 #====================================================
-# 4. BHI by Zhu and Liang (2012) is defined as the difference of regional-mean 
-# SLP between the Gulf of Mexico (25.3°–29.3°N, 95°–90°W) and the southern Great 
-# Plains (35°-39°N, 105.5°-100°W)
+# 4. BHI by Zhu and Liang (2012) The BHI is defined as 
+# the difference of regional-mean SLP between the Gulf 
+# of Mexico  (25.3°–29.3°N, 95°–90°W) and the southern
+# Great Plains (35°–39°N, 105.5°–100°W)
 
 GulfMex  = np.average(SubsetPSL[ :, 0:1, 5:7], axis = (1,2))
 GreatPla = np.average(SubsetPSL[ :, 4:6, 1:3], axis = (1,2))
@@ -226,10 +239,17 @@ y  = BHIZhuMean.reshape((12 * yrAvg), int(newTerms))
 tenYrAvgBHIZhuMean = transpose(sum(y, axis = 0) / (12 * yrAvg))
 tenYrAvgBHIZhuMean = tenYrAvgBHIZhuMean.reshape(1, int(1000/yrAvg))
 
-# tenYrAvgBHIZhu = np.concatenate((tenYrAvgBHIZhuMean[0], tenYrAvgBHIZhu[0]))
+tenYrAvgBHIZhu = np.concatenate((tenYrAvgBHIZhuMean[0], tenYrAvgBHIZhu[0]))
+
+# running normalization
+bhizhu=pd.Series(tenYrAvgBHIZhu)
+# normalization
+BHIZhu_std=(bhizhu-bhizhu.rolling(window=30).mean())/bhizhu.rolling(window=30).std()
+
+BHIZhu_std = pd.Series.to_numpy(BHIZhu_std)
 
 
-#======================================================================
+# In[48]:
 
 
 plt.style.use('ggplot')
@@ -246,14 +266,14 @@ figure(1)
 plt.plot( y, tenYrAvgBHIStahle)
 plt.ylabel('BHI index')
 plt.title('BHI Stahle')
-plt.xlabel('Years since 850 in 50 year increments')
+plt.xlabel('Years since 850 in 10 year increments')
 
 #plt.subplot(412)
 figure(2)
 plt.plot( y, BHIOrtegren_std)
 plt.ylabel('BHI index')
 plt.title('BHI Ortegren')
-plt.xlabel('Years since 850 in 50 year increments')
+plt.xlabel('Years since 850 in 10 year increments')
 
 figure(3)
 plt.plot( y, tenYrAvgBHILi)
@@ -262,20 +282,20 @@ plt.title('BHI Li')
 plt.xlabel('Years since 850 in 50 year increments')
 
 figure(4)
-plt.plot( y, tenYrAvgBHIZhu)
+plt.plot( y, BHIZhu_std)
 plt.ylabel('BHI index')
 plt.title('BHI Zhu')
-plt.xlabel('Years since 850 in 50 year increments')
+plt.xlabel('Years since 850 in 10 year increments')
 
 
-#======================================================================
+# In[49]:
 
 
 BHIStahleSTD = np.std(tenYrAvgBHIStahle,axis = 0)
 print(BHIStahleSTD)
 
 
-#======================================================================
+# In[50]:
 
 
 t2, p2 = stats.ttest_ind(tenYrAvgBHIStahle[0], tenYrAvgBHIStahle850[0] ,equal_var=False)
@@ -283,14 +303,14 @@ print("t = " + str(t2))
 print("p = " + str(p2))
 
 
-#======================================================================
+# In[51]:
 
 
 plt.style.use('ggplot')
 #======================================================================
 fig=plt.figure()
 #======================================================================
-figure(5)
+figure(1)
 
 distribution1 = tenYrAvgBHIStahle[0]
 distribution2 = tenYrAvgBHIStahle850[0]
@@ -311,10 +331,25 @@ plt.xlabel('BHI index')
 plt.ylabel('Probability')
 plt.title('BHI Stahle')
 
+# plt.axvline(0.31, 0,20,color='Navy',label='LIA NINO3 Full Ensemble Mean')
+# plt.axvline(0.39, 0,20,color='DodgerBlue',label='LIA NINO3 Mean of MC Realizations')
 
+# plt.axvline(0.32, 0,20,color='Coral',label='MCA NINO3 Full Ensemble Mean')
+# plt.axvline(0.36, 0,20,color='Orange',label='MCA NINO3 Mean of MC Realizations')
+
+    #plt.title('A. NINO3',fontsize=20)
+    #plt.xlabel('NINO3 1-$\sigma$ spread',fontsize=20)
+    #plt.ylabel('Density',fontsize=20)
+    #plt.xticks(fontsize=20)
+    #plt.yticks(fontsize=20)
+#plt.legend(fontsize=14)
+
+# plt.xlim([-0.9,0.9])
+    #plt.ylim([-0.1,22])
+#plt.legend()
 #======================================================================
 
-figure(6)
+figure(2)
 
 sns.kdeplot(distribution3,shade=True, linewidth=3)#, label = "MCA")
 
@@ -324,13 +359,37 @@ plt.ylabel('Probability')
 plt.title('BHI Ortegren')
 
 
+# sns.distplot(sigma_full_ens, hist = True, kde = True,
+#                  kde_kws = {'shade': True, 'linewidth': 3}, 
+#                   label = "Last2k")
+
+# In [20]: MCA_amplitude
+# Out[20]: 0.35166755
+
+# In [21]: LIA_amplitude
+# Out[21]: 0.32226029
+
+# plt.axvline(0.32, 0,20,color='Navy')#,label='LIA NINO3.4 Full Ensemble Mean')
+# plt.axvline(0.38, 0,20,color='DodgerBlue',linewidth=3.0)#,label='LIA NINO3.4 Mean of MC Realizations')
+
+# plt.axvline(0.35, 0,20)#,color='Coral',label='MCA NINO3.4 Full Ensemble Mean')
+# plt.axvline(0.38, 0,20)#,color='Orange',label='MCA NINO3.4 Mean of MC Realizations')
+
+    #plt.title('B. NINO3.4',fontsize=20)
+    #plt.xlabel('NINO3.4 1-$\sigma$ spread',fontsize=20)
+    #plt.ylabel('Density',fontsize=20)
+# plt.xlim([-0.9,0.9])
+    # plt.ylim([-0.1,22])
+#plt.legend()
+    # plt.xticks(fontsize=20)
+    # plt.yticks(fontsize=20)
+    #plt.legend(fontsize=14)
+
 fig.legend(loc='upper center',
           fancybox=True, shadow=True, ncol=3)
 
 
-#======================================================================
-
-figure(7)
+figure(3)
 
 sns.kdeplot(distribution5,shade=True, linewidth=3)#, label = "MCA")
 
@@ -339,9 +398,8 @@ plt.xlabel('BHI index')
 plt.ylabel('Probability')
 plt.title('BHI Li')
 
-#======================================================================
 
-figure(8)
+figure(4)
 
 sns.kdeplot(distribution7,shade=True, linewidth=3)#, label = "MCA")
 
@@ -353,3 +411,4 @@ plt.title('BHI Zhu')
 
 #======================================================================
 plt.show()
+
