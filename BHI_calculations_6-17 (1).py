@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[41]:
+# In[79]:
 
 
 from pylab import *
@@ -12,7 +12,7 @@ from scipy import stats
 import seaborn as sns
 
 
-# In[42]:
+# In[80]:
 
 
 lats      = np.load('CESM_LME_lats.npy')
@@ -25,7 +25,7 @@ Z3850     = np.load('Z3_850_LME_1850-2005.npy')
 Z3850Mean = np.load('Z3_850_LME_ENSMEAN_850-1850.npy')
 
 
-# In[43]:
+# In[81]:
 
 
 # Save only U.S. 
@@ -55,7 +55,7 @@ print(latrange)
 print(lonrange)
 
 
-# In[44]:
+# In[127]:
 
 
 #====================================================================#
@@ -68,7 +68,8 @@ print(lonrange)
 BHIStahle = SubsetPSL[ : , 7, 19] - SubsetPSL[ : , 1, 3]
 BHIStahle850 = SubsetPSLmean[ : , 7, 19] - SubsetPSLmean[ : , 1, 3]
 
-print(BHIStahle)
+print(size(BHIStahle))
+
 # running normalization
 bhistahle=pd.Series(BHIStahle)
 # normalization
@@ -80,7 +81,13 @@ BHIStahle850_std=(bhistahle850-bhistahle850.rolling(window=30).mean())/bhistahle
 BHIStahle_std = pd.Series.to_numpy(BHIStahle_std)
 BHIStahle850_std = pd.Series.to_numpy(BHIStahle850_std)
 
-print(BHIStahle_std)
+BHIStahle_std = np.nan_to_num(BHIStahle_std)
+BHIStahle850_std = np.nan_to_num(BHIStahle850_std)
+
+
+print(size(BHIStahle_std))
+print(size(BHIStahle850_std))
+
 
 s1 = size(BHIStahle_std, axis = 0)
 m  = s1 - mod(s1, 12 * yrAvg)
@@ -101,12 +108,12 @@ y  = BHIStahle850_std.reshape((12 * yrAvg), int(newTerms))
 tenYrAvgBHIStahle850 = transpose(sum(y, axis = 0) / (12 * yrAvg))
 tenYrAvgBHIStahle850 = tenYrAvgBHIStahle850.reshape(1, int(1000/yrAvg))
 
-tenYrAvgBHIStahle = np.concatenate((tenYrAvgBHIStahle850[0], tenYrAvgBHIStahle[0]))
+tenYrAvgBHIStahleCombined = np.concatenate((tenYrAvgBHIStahle850[0], tenYrAvgBHIStahle[0]))
 
-print(tenYrAvgBHIStahle)
+print(tenYrAvgBHIStahleCombined)
 
 
-# In[45]:
+# In[129]:
 
 
 #=============================================================================#
@@ -125,36 +132,52 @@ BHIOrtegren850JJA = BHIOrtegren850Seasons[:, 5:8]
 BHIOrtegren850JJAavg = np.average(BHIOrtegren850Seasons, axis = 1)
 
 
-s1 = size(BHIOrtegrenJJAavg, axis = 0)
+# running normalization
+bhiortegren=pd.Series(BHIOrtegrenJJAavg)
+# normalization
+BHIOrtegren_std=(bhiortegren-bhiortegren.rolling(window=30).mean())/bhiortegren.rolling(window=30).std()
+
+BHIOrtegrenJJAavg_STD = pd.Series.to_numpy(BHIOrtegren_std)
+
+BHIOrtegrenJJAavg_STD = np.nan_to_num(BHIOrtegrenJJAavg_STD)
+
+s1 = size(BHIOrtegrenJJAavg_STD, axis = 0)
 m  = s1 - mod(s1, (yrAvg))
-BHIOrtegrenJJAavg = BHIOrtegrenJJAavg[0:m]
+BHIOrtegrenJJAavg_STD = BHIOrtegrenJJAavg_STD[0:m]
 newTerms = m/(yrAvg)
-y = BHIOrtegrenJJAavg.reshape((yrAvg), int(newTerms))
+y = BHIOrtegrenJJAavg_STD.reshape((yrAvg), int(newTerms))
 
 tenYrAvgBHIOrtegren = transpose(sum(y, axis = 0) / (yrAvg))
 tenYrAvgBHIOrtegren = tenYrAvgBHIOrtegren.reshape(1,int(150/yrAvg))
 
-s1 = size(BHIOrtegren850JJAavg, axis = 0)
+
+# running normalization
+bhiortegren=pd.Series(BHIOrtegren850JJAavg)
+# normalization
+BHIOrtegren_std=(bhiortegren-bhiortegren.rolling(window=30).mean())/bhiortegren.rolling(window=30).std()
+
+BHIOrtegren850JJAavg_STD = pd.Series.to_numpy(BHIOrtegren_std)
+
+BHIOrtegren850JJAavg_STD = np.nan_to_num(BHIOrtegren850JJAavg_STD)
+
+
+s1 = size(BHIOrtegren850JJAavg_STD, axis = 0)
 m  = s1 - mod(s1, (yrAvg))
-BHIOrtegren850JJAavg = BHIOrtegren850JJAavg[0:m]
+BHIOrtegren850JJAavg_STD = BHIOrtegren850JJAavg_STD[0:m]
 newTerms = m/(yrAvg)
-y  = BHIOrtegren850JJAavg.reshape((yrAvg), int(newTerms))
+y  = BHIOrtegren850JJAavg_STD.reshape((yrAvg), int(newTerms))
 
 
 tenYrAvgBHIOrtegren850 = transpose(sum(y, axis = 0) / (yrAvg))
 tenYrAvgBHIOrtegren850 = tenYrAvgBHIOrtegren850.reshape(1, int(1000 / yrAvg))
 
-tenYrAvgBHIOrtegren = np.concatenate((tenYrAvgBHIOrtegren850[0], tenYrAvgBHIOrtegren[0]))
-
-# running normalization
-bhiortegren=pd.Series(tenYrAvgBHIOrtegren)
-# normalization
-BHIOrtegren_std=(bhiortegren-bhiortegren.rolling(window=30).mean())/bhiortegren.rolling(window=30).std()
-
-BHIOrtegren_std = pd.Series.to_numpy(BHIOrtegren_std)
+tenYrAvgBHIOrtegrenCombined = np.concatenate((tenYrAvgBHIOrtegren850[0], tenYrAvgBHIOrtegren[0]))
 
 
-# In[46]:
+
+
+
+# In[98]:
 
 
 #============================================================================#
@@ -164,41 +187,79 @@ BHIOrtegren_std = pd.Series.to_numpy(BHIOrtegren_std)
 
 
 BHILi_subset = SubsetZ3850[ :, 0:9, 11:35]
-print(BHILi_subset.shape)
-BHILi = np.amax(BHILi_subset, axis = 1)
-print(BHILi.shape)
-BHILi = np.argmax(BHILi, axis = 1)
-print(BHILi.shape)
-print(BHILi)
+x = 0
+y = 0
+maxLat = np.zeros(1873)
 
-BHILimean_subset = SubsetZ3850Mean[ :, 0:9, 11:35]
-BHILimean = np.amax(BHILimean_subset, axis = 1)
-BHILimean = np.argmax(BHILimean, axis = 1)
+years = size(BHILi_subset, axis = 0)
+lat = size(BHILi_subset, axis = 1)
 
-
-s1 = size(BHILi, axis = 0)
+while x < years:
+    BHILi_lat = BHILi_subset[x, :, :]
+    maxMonth = 0
+    y = 0
+    x = x + 1
+    while y < lat:
+        BHILi_lon = BHILi_lat[y, :]
+        for z in BHILi_lon:
+            if z > maxMonth:
+                maxMonth = z
+                maxLat[x] = y
+        y = y + 1        
+        
+                
+s1 = size(maxLat, axis = 0)
 m  = s1 - mod(s1, (12 * yrAvg))
-BHILi = BHILi[0:m]
+maxLat = maxLat[0:m]
 newTerms = m/(12 * yrAvg)
-y = BHILi.reshape((12 * yrAvg), int(newTerms))
+y = maxLat.reshape((12 * yrAvg), int(newTerms))
 
 tenYrAvgBHILi = transpose(sum(y, axis = 0) / (12 * yrAvg))
+
 tenYrAvgBHILi = tenYrAvgBHILi.reshape(1, int(150 / yrAvg))
 
 
-s1 = size(BHILimean, axis = 0)
+BHILi_subset = SubsetZ3850Mean[ :, 0:9, 11:35]
+x = 0
+y = 0
+maxLat = np.zeros(12001)
+
+years = size(BHILi_subset, axis = 0)
+lat = size(BHILi_subset, axis = 1)
+
+while x < years:
+    BHILi_lat = BHILi_subset[x, :, :]
+    maxMonth = 0
+    y = 0
+    x = x + 1
+    while y < lat:
+        BHILi_lon = BHILi_lat[y, :]
+        for z in BHILi_lon:
+            if z > maxMonth:
+                maxMonth = z
+                maxLat[x] = y
+        y = y + 1        
+        
+s1 = size(maxLat, axis = 0)
 m  = s1 - mod(s1, (12 * yrAvg))
-BHILimean = BHILimean[0:m]
+maxLat = maxLat[0:m]
 newTerms = m/(12 * yrAvg)
-y  = BHILimean.reshape((12 * yrAvg), int(newTerms))
+y  = maxLat.reshape((12 * yrAvg), int(newTerms))        
 
-
-tenYrAvgBHILimean = transpose(sum(y, axis = 0) / (12 * yrAvg))
+tenYrAvgBHILimean = transpose(sum(y, axis = 0) / (12 * yrAvg))   
+                              
 tenYrAvgBHILimean = tenYrAvgBHILimean.reshape(1, int(1000 / yrAvg))
-
+                                        
 tenYrAvgBHILi = np.concatenate((tenYrAvgBHILimean[0], tenYrAvgBHILi[0]))
 
-print(tenYrAvgBHILi)
+# running normalization
+bhili=pd.Series(tenYrAvgBHILi)
+# normalization
+BHILi_std=(bhili-bhili.rolling(window=30).mean())/bhili.rolling(window=30).std()
+
+BHILi_std = pd.Series.to_numpy(BHILi_std)
+
+print(BHILi_std)
 
 
 # In[47]:
@@ -249,7 +310,7 @@ BHIZhu_std=(bhizhu-bhizhu.rolling(window=30).mean())/bhizhu.rolling(window=30).s
 BHIZhu_std = pd.Series.to_numpy(BHIZhu_std)
 
 
-# In[48]:
+# In[130]:
 
 
 plt.style.use('ggplot')
@@ -260,42 +321,44 @@ print(tenYrAvgBHILi)
 print(tenYrAvgBHILi)
 
 
-y = np.arange(0,int(1150/yrAvg))
+years = np.arange(855, 2005, yrAvg)
+print(size(years))
 
+print(size(tenYrAvgBHIStahleCombined, axis = 0))
 figure(1)
-plt.plot( y, tenYrAvgBHIStahle)
+plt.plot( years, tenYrAvgBHIStahleCombined)
 plt.ylabel('BHI index')
 plt.title('BHI Stahle')
-plt.xlabel('Years since 850 in 10 year increments')
+plt.xlabel('Year')
 
 #plt.subplot(412)
 figure(2)
-plt.plot( y, BHIOrtegren_std)
+plt.plot( years, tenYrAvgBHIOrtegrenCombined)
 plt.ylabel('BHI index')
 plt.title('BHI Ortegren')
-plt.xlabel('Years since 850 in 10 year increments')
+plt.xlabel('Year')
 
 figure(3)
-plt.plot( y, tenYrAvgBHILi)
+plt.plot( years, BHILi_std)
 plt.ylabel('BHI index')
 plt.title('BHI Li')
-plt.xlabel('Years since 850 in 50 year increments')
+plt.xlabel('Year')
 
 figure(4)
-plt.plot( y, BHIZhu_std)
+plt.plot( years, BHIZhu_std)
 plt.ylabel('BHI index')
 plt.title('BHI Zhu')
-plt.xlabel('Years since 850 in 10 year increments')
+plt.xlabel('Year')
 
 
-# In[49]:
+# In[106]:
 
 
 BHIStahleSTD = np.std(tenYrAvgBHIStahle,axis = 0)
 print(BHIStahleSTD)
 
 
-# In[50]:
+# In[107]:
 
 
 t2, p2 = stats.ttest_ind(tenYrAvgBHIStahle[0], tenYrAvgBHIStahle850[0] ,equal_var=False)
@@ -303,8 +366,7 @@ print("t = " + str(t2))
 print("p = " + str(p2))
 
 
-# In[51]:
-
+# In[109]:
 
 plt.style.use('ggplot')
 #======================================================================
@@ -316,17 +378,19 @@ distribution1 = tenYrAvgBHIStahle[0]
 distribution2 = tenYrAvgBHIStahle850[0]
 distribution3 = tenYrAvgBHIOrtegren[0]
 distribution4 = tenYrAvgBHIOrtegren850[0]
-distribution5 = tenYrAvgBHILi[0]
-distribution6 = tenYrAvgBHILimean[0]
-distribution7 = tenYrAvgBHIZhu[0]
-distribution8 = tenYrAvgBHIZhuMean[0]
+
+
+#distribution5 = tenYrAvgBHILi
+#distribution6 = tenYrAvgBHILimean
+#distribution7 = tenYrAvgBHIZhu[0]
+#distribution8 = tenYrAvgBHIZhuMean[0]
 
 
 print(distribution1)
 
-sns.kdeplot(distribution1, shade=True, linewidth=3) #label = "Stahle"
+sns.kdeplot(distribution1, shade=True, linewidth=3, label = "Stahle 1850-2005")
 
-sns.kdeplot(distribution2, shade=True, linewidth=3) #label = "Stahle850"
+sns.kdeplot(distribution2, shade=True, linewidth=3, label = "Stahle 850-1850")
 plt.xlabel('BHI index')
 plt.ylabel('Probability')
 plt.title('BHI Stahle')
@@ -351,9 +415,9 @@ plt.title('BHI Stahle')
 
 figure(2)
 
-sns.kdeplot(distribution3,shade=True, linewidth=3)#, label = "MCA")
+sns.kdeplot(distribution3,shade=True, linewidth=3, label = "Ortegren 1850-2005")
 
-sns.kdeplot(distribution4, shade=True, linewidth=3)#, label = "LIA")
+sns.kdeplot(distribution4, shade=True, linewidth=3, label = "Ortegren 850-1850")
 plt.xlabel('BHI index')
 plt.ylabel('Probability')
 plt.title('BHI Ortegren')
@@ -385,30 +449,5 @@ plt.title('BHI Ortegren')
     # plt.yticks(fontsize=20)
     #plt.legend(fontsize=14)
 
-fig.legend(loc='upper center',
-          fancybox=True, shadow=True, ncol=3)
-
-
-figure(3)
-
-sns.kdeplot(distribution5,shade=True, linewidth=3)#, label = "MCA")
-
-sns.kdeplot(distribution6, shade=True, linewidth=3)#, label = "LIA")
-plt.xlabel('BHI index')
-plt.ylabel('Probability')
-plt.title('BHI Li')
-
-
-figure(4)
-
-sns.kdeplot(distribution7,shade=True, linewidth=3)#, label = "MCA")
-
-sns.kdeplot(distribution8, shade=True, linewidth=3)#, label = "LIA")
-
-plt.xlabel('BHI index')
-plt.ylabel('Probability')
-plt.title('BHI Zhu')
-
-#======================================================================
+#fig.legend(loc='upper center',fancybox=True, shadow=True, ncol=3)
 plt.show()
-
