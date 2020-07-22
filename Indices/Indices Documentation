@@ -1,0 +1,22 @@
+BHI  by Stahle and Cleaveland (1992) is defined as the normalized SLP difference between Bermuda (40°N, 60°W) 
+and New Orleans (30°N, 90°W).  
+https://journals.ametsoc.org/doi/abs/10.1175/1520-0477%281992%29073%3C1947%3ARAAOSR%3E2.0.CO%3B2
+
+BHI by Ortegren et al. (2011) is defined as the normalized SLP difference between New Orleans and
+locations near Bermuda, such as (32.5°N, 65°W) by Katz et al. (2003) and (35°N, 65°W).
+https://journals.ametsoc.org/doi/10.1175/2010JAMC2566.1
+
+BHI (or NASH) by Li et al. (2011) is defined as the maximum geopotential height at 850 hPa 
+within the mean area (20°–45°N, 80°–10°W), seasonal mean or monthly mean.  
+https://journals.ametsoc.org/doi/pdf/10.1175/2010JCLI3829.1
+
+BHI by Zhu and Liang (2012) is defined as the difference of regional-mean SLP between 
+the Gulf of Mexico (25.3°–29.3°N, 95°–90°W) and the southern Great Plains (35°-39°N, 105.5°-100°W), 
+https://journals.ametsoc.org/doi/full/10.1175/JCLI-D-12-00168.1
+
+WBHI by Diem (2012) is defined similar to BHI (Stahle and Cleaveland, 1992) but using monthly 
+850‐hPa heights.  
+https://rmets.onlinelibrary.wiley.com/doi/10.1002/joc.3421
+
+
+In general, the positive values of BH indices indicate the western edge of the Bermuda high located farther east than its normal position, and the corresponding magnitudes indicate the intensity. The BHI is always, to my knowledge, defined based on the monthly mean or seasonal mean data. I am not sure how accurate it is if you deduce it from the annual mean data (assuming weak variation/magnitude of BH in winter?).
